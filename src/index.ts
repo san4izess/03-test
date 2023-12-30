@@ -1,5 +1,5 @@
 import express  from 'express';
-const app = express();
+export const app = express();
 const port = 3000;
 
 const jsonBodyMiddleware = express.json()
@@ -14,8 +14,6 @@ app.use((req, res, next) => {
     res.setHeader('Content-Security-Policy', "connect-src 'self' http://localhost:3000");
     next();
   });
-
-
 
 const db = {
     courses:[
@@ -33,10 +31,10 @@ app.get("/courses", (req, res) =>{
         .filter(c => c.title.indexOf(req.query.title as string)> -1)
     }
 
-    if(!foundCourses.length){
-        res.sendStatus(404)
-        return
-    }
+    // if(!foundCourses.length){
+    //     res.sendStatus(404)
+    //     return
+    // }
         
     res.json(foundCourses)
 });
@@ -70,11 +68,12 @@ app.post("/courses", (req, res) =>{
 })
 
 app.delete("/courses/:id", (req, res) =>{
-    const founder = db.courses.find(c => c.id !== +req.params.id)
+    db.courses = db.courses.filter(c=> c.id !== +req.params.id)
+    //const founder = db.courses.find(c => c.id !== +req.params.id)
 
     res.sendStatus(204)
 
-    res.json(founder)
+   // res.json(founder)
 });
 
 app.put("/courses/:id", (req, res) =>{
@@ -95,6 +94,11 @@ app.put("/courses/:id", (req, res) =>{
 
     res.json(founder)
 });
+
+app.delete('/__test__/data',(req,res)=>{
+    db.courses = [];
+    res.sendStatus(204)
+})
 
 app.get("/", (req, res) => res.send("Hello!!!"));
 
