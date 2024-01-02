@@ -1,4 +1,10 @@
-import express  from 'express';
+import express, {Request, Response}  from 'express';
+import {RequestWithBody, RequestWithParams, RequestWithParamsAndBody, RequestWithQuery} from "./types";
+import {CreateCourseModel} from "./models/CreateCourseModel";
+import {UpdateCourseModel} from "./models/UpdateCourseModel";
+import {GetQueryCoursesModel} from "./models/GetQueryCoursesModel";
+import {ViewCourseModel} from "./models/ViewCourseModel";
+import {URLParamsCourseIdModel} from "./models/URLParamsCourseIdModel";
 export const app = express();
 const port = 3000;
 
@@ -10,25 +16,39 @@ const status = {
     'NotFound' : 404
  }
 
+ type CourseType = {
+        id: number
+        title: string
+        studentsCount: number
+ }
+
 // app.use((req, res, next) => {
 //     res.setHeader('Content-Security-Policy', "connect-src 'self' http://localhost:3000");
 //     next();
 //   });
 
-const db = {
-    courses:[
-        {id: 1, title: 'front end'},
-        {id: 2, title: 'back end'},
-        {id: 3, title: 'qa'},
-        {id: 4, title: 'dev ops'}
+const db: {courses: CourseType[]} = {
+    courses: [
+        {id: 1, title: 'front end', studentsCount: 10},
+        {id: 2, title: 'back end', studentsCount: 10},
+        {id: 3, title: 'qa', studentsCount: 10},
+        {id: 4, title: 'dev ops', studentsCount: 10}
     ]
 }
 
-app.get("/courses", (req, res) =>{
+const mapDBCourseToViewModel =  (dbCourse: CourseType): ViewCourseModel => {
+    return {
+        id: dbCourse.id,
+        title: dbCourse.title
+    }
+}
+
+app.get("/courses", (req: RequestWithQuery<GetQueryCoursesModel>,
+                     res: Response<ViewCourseModel[]>) =>{
     let foundCourses = db.courses;
     if(req.query.title){
         foundCourses = foundCourses
-        .filter(c => c.title.indexOf(req.query.title as string)> -1)
+        .filter(c => c.title.indexOf(req.query.title)> -1)
     }
 
     // if(!foundCourses.length){
@@ -36,10 +56,11 @@ app.get("/courses", (req, res) =>{
     //     return
     // }
         
-    res.json(foundCourses)
+    res.json(foundCourses.map(mapDBCourseToViewModel))
 });
 
-app.get("/courses/:id", (req, res) =>{
+app.get("/courses/:id", (req: RequestWithParams<URLParamsCourseIdModel>,
+                         res: Response<ViewCourseModel>) =>{
     const foundCourses =db.courses.find(c => c.id === +req.params.id)
 
     if (!foundCourses){
@@ -47,28 +68,31 @@ app.get("/courses/:id", (req, res) =>{
         return
     }
 
-    res.json(foundCourses)
+    res.json(mapDBCourseToViewModel(foundCourses))
 });
 
-app.post("/courses", (req, res) =>{
+app.post("/courses", (req: RequestWithBody<CreateCourseModel>,
+                                    res: Response<ViewCourseModel>) =>{
     
     if (!req.body.title){
         res.sendStatus(400)
         return
     }
     
-    const createdCourse = {
+    const createdCourse: CourseType = {
         id: +(new Date()),
-        title: req.body.title
+        title: req.body.title,
+        studentsCount: 0
     }
     db.courses.push(createdCourse)
 
     res
         .status(201)
-        .json(createdCourse)
+        .json(mapDBCourseToViewModel(createdCourse))
 })
 
-app.delete("/courses/:id", (req, res) =>{
+app.delete("/courses/:id", (req: RequestWithParams<URLParamsCourseIdModel>,
+                                            res) =>{
     db.courses = db.courses.filter(c=> c.id !== +req.params.id)
     //const founder = db.courses.find(c => c.id !== +req.params.id)
 
@@ -77,7 +101,8 @@ app.delete("/courses/:id", (req, res) =>{
    // res.json(founder)
 });
 
-app.put("/courses/:id", (req, res) =>{
+app.put("/courses/:id", (req: RequestWithParamsAndBody<URLParamsCourseIdModel, UpdateCourseModel>,
+                                        res) =>{
     
      if(!req.body.title){
         res.sendStatus(400)
@@ -96,13 +121,19 @@ app.put("/courses/:id", (req, res) =>{
     res.sendStatus(204)
 });
 
-app.delete('/__test__/data',(req,res)=>{
+app.delete('/__test__/data',(req,
+                                            res)=>{
     db.courses = [];
     res.sendStatus(204)
 })
 
-app.get("/", (req, res) => res.send("Hello!!!"));
+app.get("/", (req,
+              res) => res.send("Hello!!!"));
 
-app.get("/san4i", (req, res) => res.send("Hello San4i!"));
+app.get("/san4i", (req,
+                   res) => res.send("Hello San4i!"));
 
-app.listen(port, () => console.log(`Example app listening on port ${port}!`));
+
+export const server = app.listen(port, () => {
+    console.log(`Example app listening on port ${port}!`)
+});
