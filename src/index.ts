@@ -10,10 +10,10 @@ const status = {
     'NotFound' : 404
  }
 
-app.use((req, res, next) => {
-    res.setHeader('Content-Security-Policy', "connect-src 'self' http://localhost:3000");
-    next();
-  });
+// app.use((req, res, next) => {
+//     res.setHeader('Content-Security-Policy', "connect-src 'self' http://localhost:3000");
+//     next();
+//   });
 
 const db = {
     courses:[
@@ -40,14 +40,14 @@ app.get("/courses", (req, res) =>{
 });
 
 app.get("/courses/:id", (req, res) =>{
-    const founder =db.courses.find(c => c.id === +req.params.id)
+    const foundCourses =db.courses.find(c => c.id === +req.params.id)
 
-    if (!founder){
-        res.sendStatus(status.NotFound)
+    if (!foundCourses){
+        res.sendStatus(404)
         return
     }
 
-    res.json(founder)
+    res.json(foundCourses)
 });
 
 app.post("/courses", (req, res) =>{
@@ -62,9 +62,10 @@ app.post("/courses", (req, res) =>{
         title: req.body.title
     }
     db.courses.push(createdCourse)
+
     res
-    .status(201)
-    .json(createdCourse)
+        .status(201)
+        .json(createdCourse)
 })
 
 app.delete("/courses/:id", (req, res) =>{
@@ -83,16 +84,16 @@ app.put("/courses/:id", (req, res) =>{
         return
      }
     
-    const founder = db.courses.find(c => c.id === +req.params.id)
+    const foundCourse = db.courses.find(c => c.id === +req.params.id)
 
-    if (!founder){
+    if (!foundCourse){
         res.sendStatus(404)
         return
     }
 
-    founder.title = req.body.title
+    foundCourse.title = req.body.title
 
-    res.json(founder)
+    res.sendStatus(204)
 });
 
 app.delete('/__test__/data',(req,res)=>{

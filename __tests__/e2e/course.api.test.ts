@@ -88,7 +88,7 @@ describe('/course',()=>{
         await request(app)
             .put(`/courses/` + createdCourse1.id)
             .send({title: 'good new title'})
-            .expect(200) // тут посмотреть после рефакторинга на 204
+            .expect(204) // тут посмотреть после рефакторинга на 204
 
         await request(app)
             .get('/courses/' + createdCourse1.id)
