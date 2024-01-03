@@ -1,7 +1,8 @@
 import request from 'supertest'
-import {app, server} from "../../src";
 import {CreateCourseModel} from "../../src/models/CreateCourseModel";
 import {UpdateCourseModel} from "../../src/models/UpdateCourseModel";
+import {app} from "../../src/app";
+
 describe('/course',()=>{
 
     beforeAll(async ()=>{
@@ -138,7 +139,6 @@ describe('/course',()=>{
     })
 
     afterAll(done => {
-        server.close()
         done()
     })
 })
