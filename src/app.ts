@@ -1,6 +1,6 @@
 import express from "express";
-import {addCoursesRoutes} from "./routes/courses";
-import {addTestsRoutes} from "./routes/tests";
+import {getCoursesRouter} from "./routes/courses";
+import {getTestsRouter} from "./routes/tests";
 import {db} from "./db/db";
 
 export const app = express();
@@ -14,6 +14,7 @@ app.use(jsonBodyMiddleware)
 //     next();
 //   });
 
-addCoursesRoutes(app, db)
-addTestsRoutes(app, db)
+app.use('/courses', getCoursesRouter(db))
+app.use('/__test__', getTestsRouter(db))
+
 

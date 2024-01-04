@@ -1,11 +1,15 @@
 import {app} from "../app";
 import {db, DBType} from "../db/db";
-import {Express} from "express";
+import express, {Express} from "express";
 
-export const addTestsRoutes = (app: Express, db: DBType) => {
-    app.delete('/__test__/data',(req,
+export const getTestsRouter = (db: DBType) => {
+
+    const router = express.Router()
+
+    router.delete('/data',(req,
                                                 res)=>{
         db.courses = [];
         res.sendStatus(204)
     })
+    return router
 }

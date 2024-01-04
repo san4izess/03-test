@@ -2,6 +2,7 @@ import request from 'supertest'
 import {CreateCourseModel} from "../../src/models/CreateCourseModel";
 import {UpdateCourseModel} from "../../src/models/UpdateCourseModel";
 import {app} from "../../src/app";
+import {status} from "../../src/utils";
 
 describe('/course',()=>{
 
@@ -18,7 +19,7 @@ describe('/course',()=>{
     it('should return 404 for not existing course',async () =>{
         await request(app)
             .get('/courses/1')
-            .expect(404)
+            .expect(status.NotFound_404)
     })
 
     it('shouldnt create course with incorrect input data', async ()=>{
